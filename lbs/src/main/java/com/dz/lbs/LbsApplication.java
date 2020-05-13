@@ -1,0 +1,15 @@
+package com.dz.lbs;
+
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.cloud.netflix.eureka.EnableEurekaClient;
+
+@EnableEurekaClient
+@SpringBootApplication
+public class LbsApplication {
+
+    public static void main(String[] args) {
+        SpringApplication.run (LbsApplication.class, args);
+    }
+
+}

@@ -1,0 +1,57 @@
+version: '3.3'
+services:
+  eureka-server:
+    build: ./eureka-server/
+    container_name: eu-server
+    ports:
+      - "8761:8761"
+
+  user-service:
+    build: ./lbsuser/
+    #      dockerfile: user-service/Dockerfile
+    container_name: user-service
+    ports:
+      - "5556:5556"
+    depends_on:
+      - library-db
+    links:
+      - eureka-server
+    environment: # Pass environment variables to the service
+      SPRING_DATASOURCE_URL: jdbc:mysql://library-db:3306/library?allowPublicKeyRetrieval=true&createDatabaseIfNotExist=true&useSSL=false
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: root
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eu-server:8761/eureka
+
+  book-service:
+    build: ./lbs/
+    #      dockerfile: lbs/Dockerfile
+    container_name: book-service
+    ports:
+      - "5555:5555"
+    expose:
+      - 5555
+    depends_on:
+      - library-db
+    links:
+      - eureka-server
+    environment: # Pass environment variables to the service
+      SPRING_DATASOURCE_URL: jdbc:mysql://library-db:3306/library?allowPublicKeyRetrieval=true&createDatabaseIfNotExist=true&useSSL=false
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: root
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eu-server:8761/eureka
+   
+  library-db:
+    image: mysql:latest
+    container_name: library-database
+    restart: on-failure
+    ports:
+      - '3307:3307'
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: library
+    volumes:
+      - db-data:/var/lib/mysql
+
+volumes:
+  db-data:
+
